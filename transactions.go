@@ -6,6 +6,10 @@ type Collective struct {
 	Slug string `json:"slug"`
 }
 
+type Subscription struct {
+	Interval string `json:"interval"`
+}
+
 type Transaction struct {
 	Id int `json:"id"`
 	Type string `json:"type"`
@@ -14,6 +18,7 @@ type Transaction struct {
 	NetAmountInCollectiveCurrency int `json:"netAmountInCollectiveCurrency"`
 	Collective Collective `json:"collective"`
 	FromCollective Collective `json:"fromCollective"`
+	Subscription Subscription `json:"subscription"`
 }
 
 type Transactions []Transaction

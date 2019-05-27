@@ -26,7 +26,8 @@ type TransactionsQuery struct {
 }
 
 //const maximumQuery  = "query Transactions($CollectiveId: Int!, $type: String, $limit: Int, $offset: Int, $dateFrom: String, $dateTo: String) {\n  allTransactions(CollectiveId: $CollectiveId, type: $type, limit: $limit, offset: $offset, dateFrom: $dateFrom, dateTo: $dateTo) {\n    id\n    uuid\n    description\n    createdAt\n    type\n    amount\n    currency\n    hostCurrency\n    hostCurrencyFxRate\n    netAmountInCollectiveCurrency\n    hostFeeInHostCurrency\n    platformFeeInHostCurrency\n    paymentProcessorFeeInHostCurrency\n    paymentMethod {\n      service\n      type\n      name\n      data\n      __typename\n    }\n    collective {\n      id\n      slug\n      type\n      name\n      __typename\n    }\n    fromCollective {\n      id\n      name\n      slug\n      path\n      image\n      __typename\n    }\n    usingVirtualCardFromCollective {\n      id\n      slug\n      name\n      __typename\n    }\n    host {\n      id\n      slug\n      name\n      currency\n      hostFeePercent\n      __typename\n    }\n    ... on Expense {\n      category\n      attachment\n      __typename\n    }\n    ... on Order {\n      createdAt\n      subscription {\n        interval\n        __typename\n      }\n      __typename\n    }\n    refundTransaction {\n      id\n      uuid\n      description\n      createdAt\n      type\n      amount\n      currency\n      hostCurrency\n      hostCurrencyFxRate\n      netAmountInCollectiveCurrency\n      hostFeeInHostCurrency\n      platformFeeInHostCurrency\n      paymentProcessorFeeInHostCurrency\n      paymentMethod {\n        service\n        type\n        name\n        data\n        __typename\n      }\n      collective {\n        id\n        slug\n        type\n        name\n        __typename\n      }\n      fromCollective {\n        id\n        name\n        slug\n        path\n        image\n        __typename\n      }\n      usingVirtualCardFromCollective {\n        id\n        slug\n        name\n        __typename\n      }\n      host {\n        id\n        slug\n        name\n        currency\n        hostFeePercent\n        __typename\n      }\n      ... on Expense {\n        category\n        attachment\n        __typename\n      }\n      ... on Order {\n        createdAt\n        subscription {\n          interval\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
-const query = "query Transactions($CollectiveId: Int!, $type: String, $limit: Int, $offset: Int, $dateFrom: String, $dateTo: String) {\n  allTransactions(CollectiveId: $CollectiveId, type: $type, limit: $limit, offset: $offset, dateFrom: $dateFrom, dateTo: $dateTo) {\n    id\n    type\n    amount\n    currency\n    netAmountInCollectiveCurrency\n    collective {\n      name\n    }\n    fromCollective {\n      name\n      path\n    }\n  }\n}\n"
+const query = "query Transactions($CollectiveId: Int!, $type: String, $limit: Int, $offset: Int, $dateFrom: String, $dateTo: String) {\n  allTransactions(CollectiveId: $CollectiveId, type: $type, limit: $limit, offset: $offset, dateFrom: $dateFrom, dateTo: $dateTo) {\n    id\n    type\n    amount\n    currency\n    netAmountInCollectiveCurrency\n    collective {\n      name\n    }\n    fromCollective {\n      name\n      path\n    }\n    ... on Order {\n      createdAt\n      subscription {\n        interval\n}\n}\n  }\n}"
+
 const graphQlURL = "https://opencollective.com/api/graphql"
 const currentStateFilename = ".opencollective-current.json"
 const webhookURL = "https://notify.bot.codex.so/u/"
@@ -123,7 +124,16 @@ func main() {
 		sort.Sort(Transactions(newTransactions))
 		for _, transaction := range newTransactions {
 			data := url.Values{}
-			data.Set("message", fmt.Sprintf("💰 %d$ donation to %s from %s", transaction.Amount / 100, transaction.Collective.Name, transaction.FromCollective.Name))
+
+			var message string
+
+			if transaction.Subscription.Interval != "" {
+				message = fmt.Sprintf("💰 %d$ %sly donation to %s from %s", transaction.Amount / 100, transaction.Subscription.Interval, transaction.Collective.Name, transaction.FromCollective.Name)
+			} else {
+				message = fmt.Sprintf("💰 %d$ donation to %s from %s", transaction.Amount / 100, transaction.Collective.Name, transaction.FromCollective.Name)
+			}
+
+			data.Set("message", message)
 			_, err := MakeHTTPRequest("POST", fmt.Sprintf("%s%s", webhookURL, token), []byte(data.Encode()), map[string]string{
 				"Content-Type": "application/x-www-form-urlencoded",
 			})

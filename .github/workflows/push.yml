@@ -1,0 +1,39 @@
+name: push
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  DOCKER_REPO: codex-team/opencollective-webhook
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://golangci/golangci-lint:v1.41.1
+        with:
+          args: golangci-lint run
+
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: ${{ endsWith(github.ref, 'refs/tags/v') }}
+          tags: ${{ steps.meta.outputs.tags }}

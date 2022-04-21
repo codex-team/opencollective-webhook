@@ -12,7 +12,7 @@ RUN go build -o /opencollective-webhook
 
 FROM alpine:3.14.1
 
-WORKDIR /
+WORKDIR /usr/app
 
 COPY --from=build /opencollective-webhook /opencollective-webhook
 

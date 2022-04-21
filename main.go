@@ -49,6 +49,8 @@ func loadCurrentState() (GraphQlData, error) {
 		log.Fatalf("JSON file unmarshalling error: %v", err)
 	}
 
+	log.Print("File read ", jsonFile.Name())
+
 	return *state, nil
 }
 
@@ -102,6 +104,8 @@ func main() {
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Fatalf("JSON Unmarshalling error: %v", err)
 	}
+
+	log.Print("Response handled")
 
 	currentState, err := loadCurrentState()
 

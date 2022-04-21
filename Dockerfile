@@ -17,6 +17,4 @@ WORKDIR /
 
 COPY --from=build /opencollective-webhook /opencollective-webhook
 
-COPY .env ./
-
 ENTRYPOINT ["/opencollective-webhook"]

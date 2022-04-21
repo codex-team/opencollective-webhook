@@ -69,7 +69,7 @@ func main() {
 		OperationName: "Transactions",
 		Variables: TransactionsVariables{
 			CollectiveId: 37258,
-			DateFrom: "2019-02-28T21:00:00.000Z",
+			DateFrom: "2022-04-20T21:00:00.000Z",
 			DateTo: time.Now().Format("2006-01-02T15:04:05.000Z"),
 		},
 		Query: query,

@@ -3,6 +3,7 @@ FROM golang:1.18-alpine as build
 WORKDIR /app
 
 COPY go.mod ./
+COPY go.sum ./
 
 RUN go mod download
 
@@ -16,6 +17,6 @@ WORKDIR /usr/app
 
 COPY --from=build /opencollective-webhook /opencollective-webhook
 
-COPY .env.sample ./
+COPY .env ./
 
 ENTRYPOINT ["/opencollective-webhook"]

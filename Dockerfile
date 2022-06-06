@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine as build
+FROM golang:1.18-alpine as build
 
 WORKDIR /app
 
@@ -15,5 +15,7 @@ FROM alpine:3.14.1
 WORKDIR /usr/app
 
 COPY --from=build /opencollective-webhook /opencollective-webhook
+
+COPY .env.sample ./
 
 ENTRYPOINT ["/opencollective-webhook"]

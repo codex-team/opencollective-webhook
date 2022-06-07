@@ -40,9 +40,8 @@ func GetTransactionsFromOpenCollective() []*Transaction {
 
 // SendToChat gets the list of new transactions and sends webhook to notifier about them.
 func SendToChat(transactions []*Transaction, webhookToken string) {
+	var message string
 	for i := 0; i < len(transactions); i++ {
-		data := url.Values{}
-
 		amount, err := strconv.Atoi(transactions[i].Amount)
 
 		if err != nil {
@@ -51,15 +50,17 @@ func SendToChat(transactions []*Transaction, webhookToken string) {
 
 		// Check if amount is less than zero.
 		if amount > 0 {
-			var message = fmt.Sprintf("💰 %d$ %s to %s", amount, transactions[i].Description, transactions[i].To)
+			message = message + fmt.Sprintf("💰 %d$ %s to %s \n\n", amount, transactions[i].Description, transactions[i].To)
+		}
+	}
+	if len(message) > 0 {
+		data := url.Values{}
+		data.Set("message", message)
 
-			data.Set("message", message)
-
-			_, err = http.Post(fmt.Sprintf("%s%s", webhookURL, webhookToken), webhookContentType,
-				strings.NewReader(data.Encode()))
-			if err != nil {
-				log.Fatal(err)
-			}
+		_, err := http.Post(fmt.Sprintf("%s%s", webhookURL, webhookToken), webhookContentType,
+			strings.NewReader(data.Encode()))
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 }

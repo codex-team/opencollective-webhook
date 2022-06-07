@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
+	"github.com/joho/godotenv" //nolint:gofumpt
 	"log"
 	"os"
 	"strconv"
-	"time"
+	"time" //nolint:gofumpt
 )
 
 func main() {
-	// load values from .env.sample into the system.
+	// load values from .env into the system.
 	if err := godotenv.Load(); err != nil {
-		log.Print("No .env.sample file found")
+		log.Print("No .env file found")
 	}
 
 	var startDateString string

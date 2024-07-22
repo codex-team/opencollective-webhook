@@ -3,12 +3,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/gocarina/gocsv"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/gocarina/gocsv"
 )
 
 const openCollectiveURL string = "https://rest.opencollective.com/v2/editorjs/transactions.txt?" +
@@ -42,7 +43,7 @@ func GetTransactionsFromOpenCollective() []*Transaction {
 func SendToChat(transactions []*Transaction, webhookToken string) {
 	var message string
 	for i := 0; i < len(transactions); i++ {
-		amount, err := strconv.Atoi(transactions[i].Amount)
+		amount, err := strconv.ParseFloat(transactions[i].Amount, 64)
 
 		if err != nil {
 			log.Fatal(err)
@@ -50,7 +51,7 @@ func SendToChat(transactions []*Transaction, webhookToken string) {
 
 		// Check if amount is less than zero.
 		if amount > 0 {
-			message = message + fmt.Sprintf("💰 %d$ %s to %s \n\n", amount, transactions[i].Description, transactions[i].To)
+			message = message + fmt.Sprintf("💰 %d$ %s to %s \n\n", int(amount), transactions[i].Description, transactions[i].To)
 		}
 	}
 	if len(message) > 0 {
@@ -59,6 +60,7 @@ func SendToChat(transactions []*Transaction, webhookToken string) {
 
 		_, err := http.Post(fmt.Sprintf("%s%s", webhookURL, webhookToken), webhookContentType,
 			strings.NewReader(data.Encode()))
+
 		if err != nil {
 			log.Fatal(err)
 		}
